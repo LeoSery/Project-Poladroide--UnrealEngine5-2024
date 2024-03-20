@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "InputActionValue.h"
 #include "PlayerRobot.generated.h"
 
 class UInputComponent;
@@ -19,18 +20,18 @@ class POLADROID_API APlayerRobot : public ACharacter
 
 	/** Jump Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
-	class UInputAction* JumpAction;
+	class UInputAction*			JumpAction;
 
 	/** Move Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
-	class UInputAction* MoveAction;
+	class UInputAction*			MoveAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
-	class UInputAction* InteractAction;
+	class UInputAction*			InteractAction;
 
 	/** Look Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	class UInputAction* LookAction;
+	class UInputAction*			LookAction;
 
 public:
 	// Sets default values for this character's properties
@@ -43,7 +44,17 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+	
+protected:	
+	/** Called for movement input */
+	void Move(const FInputActionValue& Value);
 
+	/** Called for looking input */
+	void Look(const FInputActionValue& Value);
+
+	/** Called for interact input */
+	void Interact(const FInputActionValue& Value);
+	
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
