@@ -6,6 +6,7 @@
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/Character.h"
+#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMaterialLibrary.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
@@ -84,8 +85,6 @@ void UCustomMovement::PhysWallWalking(float deltaTime, int32 Iterations)
 	
 	//Get Ready for some math my dude
 	
-	
-	
 	FVector CameraForward = UKismetMathLibrary::GetForwardVector(CharacterOwner->GetControlRotation());
 	
 	FVector RotFromZ = UKismetMathLibrary::GetForwardVector( UKismetMathLibrary::MakeRotFromZ(LastHitTest.ImpactNormal)) ;//perpendicular of the normal horizontal
@@ -98,12 +97,18 @@ void UCustomMovement::PhysWallWalking(float deltaTime, int32 Iterations)
 		, FColor::Magenta, false
 		, UpdatedComponent->GetComponentTickInterval()
 		, 1, 1);
-	
+
+	/*
 	FQuat DirectionQuat = CameraDirection.ToOrientationQuat();
 	
 	float DotDirection = FVector::DotProduct(CameraDirection,RotFromZ);
 	
 	FVector CameraRightDirection = (DotDirection >= 0) ? DirectionQuat.GetUpVector() : UKismetMathLibrary::RotateAngleAxis(CameraDirection , 90.f,DirectionQuat.GetRightVector()) ; // la on fait le right vector de direction UwU
+	*/
+
+	FVector CameraRight = UKismetMathLibrary::GetRightVector(CharacterOwner->GetControlRotation());
+	
+	FVector CameraRightDirection =  (RotFromZ.Dot(CameraRight) * RotFromZ + RotFromY.Dot(CameraRight) * RotFromY).GetSafeNormal(); // direction in witch the player look on the wall
 	
 	DrawDebugDirectionalArrow(GetWorld(), CharacterOwner->GetActorLocation()
 		, CharacterOwner->GetActorLocation() + CameraRightDirection * 100, 100
@@ -117,8 +122,6 @@ void UCustomMovement::PhysWallWalking(float deltaTime, int32 Iterations)
 
 	FVector UnrotateVector = UKismetMathLibrary::LessLess_VectorRotator(GetLastInputVector(), NewRotation);
 	FVector2D InputDirection =  FVector2D(UnrotateVector.X, UnrotateVector.Y);
-	
-	
 
 	GEngine->AddOnScreenDebugMessage(1, 1.0f, FColor::Yellow, FString::Printf(TEXT("Input²Direction : %s"), *UnrotateVector.ToString()));
 
@@ -133,12 +136,11 @@ void UCustomMovement::PhysWallWalking(float deltaTime, int32 Iterations)
 	Velocity = Direction.GetSafeNormal() * MaxWalkSpeed;
 	
 	FVector Delta  = Velocity * deltaTime ;
-
-
-	
 	
 	FHitResult Hit;
 	SafeMoveUpdatedComponent(Delta, NewRotation, true, Hit);
+
+
 	
 	if (Hit.bBlockingHit)
 	{
@@ -147,42 +149,76 @@ void UCustomMovement::PhysWallWalking(float deltaTime, int32 Iterations)
 	}
 	else
 	{
-		Hit = GetFutureCollision(deltaTime);
-		if (Hit.bBlockingHit)
-		{
-			//DrawDebugCapsule(GetWorld(), UpdatedComponent->GetComponentLocation(), GetCapsuleHalfHeight(), GetCapsuleRadius(), UpdatedComponent->GetComponentQuat(), FColor::Red, false,4, 1, 1.0f);
-			
-			//Adjust location on wall
-			FHitResult OldHit = Hit;
-			FVector Start = UpdatedComponent->GetComponentLocation();
-			FVector End = Start + (UpdatedComponent->GetUpVector() * -1) * (GetCapsuleHalfHeight()*2);
 
-			GetWorld()->SweepSingleByChannel(Hit, Start, End, UpdatedComponent->GetComponentQuat(), ECC_Visibility, FCollisionShape::MakeCapsule(10, GetCapsuleHalfHeight()));
-			DrawDebugLine(GetWorld(), Start, End, FColor::Blue, false, -1.0f, 1, 1.0f);
-			if (Hit.bBlockingHit)
+		FHitResult OldHit = Hit;
+		FVector Start = UpdatedComponent->GetComponentLocation();
+		FVector End = Start + (UpdatedComponent->GetUpVector() * -1) * (GetCapsuleHalfHeight()*2);
+
+		GetWorld()->SweepSingleByChannel(Hit, Start, End, UpdatedComponent->GetComponentQuat(), ECC_Visibility,
+			FCollisionShape::MakeCapsule(10, GetCapsuleHalfHeight()));
+		//DrawDebugLine(GetWorld(), Start, End, FColor::Silver, false, -1.0f, 1, 1.0f);
+		
+		if(!Hit.bBlockingHit)
+		{
+			FVector StartFirstTrace = Direction * GetCapsuleRadius() + UpdatedComponent->GetComponentLocation();//EndSecond;
+			FVector EndFirstTrace = (UpdatedComponent->GetUpVector() * -1) * 50 + StartFirstTrace;//Direction * -300 + StartThird;
+			FHitResult CapsuleHit;
+
+			// First capsule trace (check out-angled wall)
+			GetWorld()->SweepSingleByChannel(CapsuleHit, StartFirstTrace, EndFirstTrace, UpdatedComponent->GetComponentQuat(), ECC_Visibility,
+				FCollisionShape::MakeCapsule(10, GetCapsuleHalfHeight()));
+			
+			// Check out-angle wall
+			if(CapsuleHit.bBlockingHit)
 			{
-				FVector NewLocation = Hit.ImpactPoint + (UpdatedComponent->GetUpVector() * GetCapsuleHalfHeight());
-				DrawDebugSphere(GetWorld(), Hit.ImpactPoint, 15.0, 6, FColor::Red, false, -1.0f, 0, 1.0f);
-				UpdatedComponent->SetWorldLocation(NewLocation);
+				FVector NewLocation = (UpdatedComponent->GetUpVector() * GetCapsuleHalfHeight() * -1);
+				GEngine->AddOnScreenDebugMessage(-1, 0.5f, FColor::Yellow, FString::Printf(TEXT("alu")));
+				SafeMoveUpdatedComponent(NewLocation, UKismetMathLibrary::MakeRotFromZ(CapsuleHit.ImpactNormal), true, LastHitTest);
 			}
+			else
+			{
+				// Second capsule trace
+
+				FVector StartSecondTrace = Direction * 200 + UpdatedComponent->GetComponentLocation() + (GetCapsuleHalfHeight() *1.2) * (UpdatedComponent->GetUpVector() * -1);
+				FVector EndSecondTrace = Direction * -20 + UpdatedComponent->GetComponentLocation() + (GetCapsuleHalfHeight() + 10) * (UpdatedComponent->GetUpVector() * -1);
+
+				FColor clor = CapsuleHit.bBlockingHit? FColor::Red : FColor:: Blue;
+
+				DrawDebugSphere(GetWorld(),StartFirstTrace,10,12,FColor::Cyan,true);
+				DrawDebugSphere(GetWorld(),EndFirstTrace,10,12,FColor::Magenta,true);
+			
+				DrawDebugSphere(GetWorld(),StartSecondTrace,10,12,FColor::Blue,true);
+				DrawDebugSphere(GetWorld(),EndSecondTrace,10,12,FColor::Red,true);
+				
+				GetWorld()->SweepSingleByChannel(CapsuleHit, StartSecondTrace, EndSecondTrace, UpdatedComponent->GetComponentQuat(), ECC_Visibility,
+					FCollisionShape::MakeSphere(10));
+				
+				if(CapsuleHit.bBlockingHit)
+				{
+					DrawDebugSphere(GetWorld(),CapsuleHit.ImpactPoint,10,12,FColor::Black,true);
+					CharacterOwner->SetActorLocation(CapsuleHit.ImpactNormal * GetCapsuleHalfHeight() + CapsuleHit.ImpactPoint, false);
+					CharacterOwner->SetActorRotation(UKismetMathLibrary::MakeRotFromZ(CapsuleHit.ImpactNormal));
+					//UGameplayStatics::SetGamePaused(GetWorld(), true);
+					SafeMoveUpdatedComponent((UpdatedComponent->GetUpVector() * GetCapsuleHalfHeight() * -1), UKismetMathLibrary::MakeRotFromZ(CapsuleHit.ImpactNormal), true, LastHitTest);
+				}
+				else
+				{
+					SetMovementMode(MOVE_Walking);
+					UpdatedComponent->SetWorldRotation({ 0, 0, 0 });
+				}
+			}
+
 		}
 		else
 		{
-			// On Cherche un mur
-
-
+			FVector NewLocation = (UpdatedComponent->GetUpVector() * GetCapsuleHalfHeight() * -1);
+			DrawDebugSphere(GetWorld(), Hit.ImpactPoint, 15.0, 6, FColor::Yellow, false, -1.0f, 0, 1.0f);
+			SafeMoveUpdatedComponent(NewLocation, NewRotation, true, LastHitTest);
 		}
-
-
+		
 		// We have to check if player is still near a wall
 		// man this things challenge my sanity
 	}
-	
-
-	
-
-
-	
 	
 }
 
@@ -197,14 +233,8 @@ FHitResult UCustomMovement::GetFutureCollision(float DeltaSeconds)
 	FVector Start = UpdatedComponent->GetComponentLocation();
 	FVector End = Start + Velocity * DeltaSeconds;
 	GetWorld()->SweepSingleByChannel(Hit, Start, End, UpdatedComponent->GetComponentQuat(), ECC_Visibility, FCollisionShape::MakeCapsule(GetCapsuleRadius(), GetCapsuleHalfHeight()));
-	if (Hit.bBlockingHit)
-	{
 
-		return Hit;
-	}
 	return Hit;
-
-
 }
 
 FHitResult UCustomMovement::FindBaseWall()
