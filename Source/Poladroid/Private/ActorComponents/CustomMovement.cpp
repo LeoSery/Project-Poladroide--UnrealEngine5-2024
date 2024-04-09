@@ -94,11 +94,11 @@ void UCustomMovement::PhysWallWalking(float deltaTime, int32 Iterations)
 	
 	FVector CameraDirection =  (RotFromZ.Dot(CameraForward) * RotFromZ + RotFromY.Dot(CameraForward) * RotFromY).GetSafeNormal(); // direction in witch the player look on the wall
 	
-	DrawDebugDirectionalArrow(GetWorld(), CharacterOwner->GetActorLocation()
-		, CharacterOwner->GetActorLocation() + CameraDirection * 50, 100
-		, FColor::Magenta, false
-		, UpdatedComponent->GetComponentTickInterval()
-		, 1, 1);
+	//DrawDebugDirectionalArrow(GetWorld(), CharacterOwner->GetActorLocation()
+	//	, CharacterOwner->GetActorLocation() + CameraDirection * 50, 100
+	//	, FColor::Magenta, false
+	//	, UpdatedComponent->GetComponentTickInterval()
+	//	, 1, 1);
 
 	/*
 	FQuat DirectionQuat = CameraDirection.ToOrientationQuat();
@@ -112,11 +112,11 @@ void UCustomMovement::PhysWallWalking(float deltaTime, int32 Iterations)
 	
 	FVector CameraRightDirection =  (RotFromZ.Dot(CameraRight) * RotFromZ + RotFromY.Dot(CameraRight) * RotFromY).GetSafeNormal(); // direction in witch the player look on the wall
 	
-	DrawDebugDirectionalArrow(GetWorld(), CharacterOwner->GetActorLocation()
-		, CharacterOwner->GetActorLocation() + CameraRightDirection * 100, 100
-		, FColor::Blue, false
-		, UpdatedComponent->GetComponentTickInterval()
-		, 1, 1);
+	//DrawDebugDirectionalArrow(GetWorld(), CharacterOwner->GetActorLocation()
+	//	, CharacterOwner->GetActorLocation() + CameraRightDirection * 100, 100
+	//	, FColor::Blue, false
+	//	, UpdatedComponent->GetComponentTickInterval()
+	//	, 1, 1);
 	
 	//FVector2D InputDirection =  FVector2D(GetLastInputVector().Dot(CharacterOwner->GetActorForwardVector()) , GetLastInputVector().Dot(CharacterOwner->GetActorRightVector()));
 	FRotator WallNormalRotation = UKismetMathLibrary::MakeRotFromZ(LastHitTest.ImpactNormal);
@@ -128,12 +128,12 @@ void UCustomMovement::PhysWallWalking(float deltaTime, int32 Iterations)
 	GEngine->AddOnScreenDebugMessage(1, 1.0f, FColor::Yellow, FString::Printf(TEXT("Input²Direction : %s"), *UnrotateVector.ToString()));
 
 	FVector Direction = CameraDirection * InputDirection.X + CameraRightDirection*InputDirection.Y  ; // la on fait la direction du joueur sur le mur en fonction de son input
-	
-	DrawDebugDirectionalArrow(GetWorld(), CharacterOwner->GetActorLocation()
-		, CharacterOwner->GetActorLocation() + Direction * 100, 100
-		, FColor::Green, false
-		, UpdatedComponent->GetComponentTickInterval()
-		, 1, 1);
+	//
+	//DrawDebugDirectionalArrow(GetWorld(), CharacterOwner->GetActorLocation()
+	//	, CharacterOwner->GetActorLocation() + Direction * 100, 100
+	//	, FColor::Green, false
+	//	, UpdatedComponent->GetComponentTickInterval()
+	//	, 1, 1);
 	
 	Velocity = Direction.GetSafeNormal() * MaxWalkSpeed;
 	
@@ -148,7 +148,7 @@ void UCustomMovement::PhysWallWalking(float deltaTime, int32 Iterations)
 	if (Hit.bBlockingHit)
 	{
 		LastHitTest = Hit;
-		DrawDebugCapsule(GetWorld(), UpdatedComponent->GetComponentLocation(), GetCapsuleHalfHeight(), GetCapsuleRadius(), UpdatedComponent->GetComponentQuat(),FColor::Red,false,0.0,1,1.0f);
+		//DrawDebugCapsule(GetWorld(), UpdatedComponent->GetComponentLocation(), GetCapsuleHalfHeight(), GetCapsuleRadius(), UpdatedComponent->GetComponentQuat(),FColor::Red,false,0.0,1,1.0f);
 	}
 	else
 	{
@@ -186,7 +186,12 @@ void UCustomMovement::PhysWallWalking(float deltaTime, int32 Iterations)
 				FVector EndSecondTrace = Direction * -20 + UpdatedComponent->GetComponentLocation() + (GetCapsuleHalfHeight() + 10) * (UpdatedComponent->GetUpVector() * -1);
 
 				FColor clor = CapsuleHit.bBlockingHit? FColor::Red : FColor:: Blue;
-				
+
+				//DrawDebugSphere(GetWorld(),StartFirstTrace,10,12,FColor::Cyan,true);
+				//DrawDebugSphere(GetWorld(),EndFirstTrace,10,12,FColor::Magenta,true);
+			
+				//DrawDebugSphere(GetWorld(),StartSecondTrace,10,12,FColor::Blue,true);
+				//DrawDebugSphere(GetWorld(),EndSecondTrace,10,12,FColor::Red,true);
 				
 				GetWorld()->SweepSingleByChannel(CapsuleHit, StartSecondTrace, EndSecondTrace, UpdatedComponent->GetComponentQuat(), ECC_Visibility,
 					FCollisionShape::MakeSphere(10));
@@ -221,7 +226,7 @@ void UCustomMovement::PhysWallWalking(float deltaTime, int32 Iterations)
 		else
 		{
 			FVector NewLocation = (UpdatedComponent->GetUpVector() * GetCapsuleHalfHeight() * -1);
-			DrawDebugSphere(GetWorld(), Hit.ImpactPoint, 15.0, 6, FColor::Yellow, false, -1.0f, 0, 1.0f);
+			//DrawDebugSphere(GetWorld(), Hit.ImpactPoint, 15.0, 6, FColor::Yellow, false, -1.0f, 0, 1.0f);
 			SafeMoveUpdatedComponent(NewLocation, NewRotation, true, LastHitTest);
 		}
 		UE_LOG(LogTemp, Warning, TEXT("Normal : %s"),*CharacterOwner->GetActorForwardVector().ToString());
