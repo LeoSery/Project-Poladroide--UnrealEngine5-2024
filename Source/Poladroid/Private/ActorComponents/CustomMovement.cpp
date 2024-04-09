@@ -3,9 +3,11 @@
 
 #include "ActorComponents/CustomMovement.h"
 
+#include "DelayAction.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/Character.h"
+#include "GameFramework/SpringArmComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMaterialLibrary.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -138,6 +140,7 @@ void UCustomMovement::PhysWallWalking(float deltaTime, int32 Iterations)
 	FVector Delta  = Velocity * deltaTime ;
 	
 	FHitResult Hit;
+	
 	SafeMoveUpdatedComponent(Delta, NewRotation, true, Hit);
 
 
@@ -183,23 +186,29 @@ void UCustomMovement::PhysWallWalking(float deltaTime, int32 Iterations)
 				FVector EndSecondTrace = Direction * -20 + UpdatedComponent->GetComponentLocation() + (GetCapsuleHalfHeight() + 10) * (UpdatedComponent->GetUpVector() * -1);
 
 				FColor clor = CapsuleHit.bBlockingHit? FColor::Red : FColor:: Blue;
-
-				DrawDebugSphere(GetWorld(),StartFirstTrace,10,12,FColor::Cyan,true);
-				DrawDebugSphere(GetWorld(),EndFirstTrace,10,12,FColor::Magenta,true);
-			
-				DrawDebugSphere(GetWorld(),StartSecondTrace,10,12,FColor::Blue,true);
-				DrawDebugSphere(GetWorld(),EndSecondTrace,10,12,FColor::Red,true);
+				
 				
 				GetWorld()->SweepSingleByChannel(CapsuleHit, StartSecondTrace, EndSecondTrace, UpdatedComponent->GetComponentQuat(), ECC_Visibility,
 					FCollisionShape::MakeSphere(10));
 				
 				if(CapsuleHit.bBlockingHit)
 				{
-					DrawDebugSphere(GetWorld(),CapsuleHit.ImpactPoint,10,12,FColor::Black,true);
+					FRotator TurnOffset = LastHitTest.Normal.Rotation() - CharacterOwner->GetControlRotation();
+					
 					CharacterOwner->SetActorLocation(CapsuleHit.ImpactNormal * GetCapsuleHalfHeight() + CapsuleHit.ImpactPoint, false);
 					CharacterOwner->SetActorRotation(UKismetMathLibrary::MakeRotFromZ(CapsuleHit.ImpactNormal));
-					//UGameplayStatics::SetGamePaused(GetWorld(), true);
 					SafeMoveUpdatedComponent((UpdatedComponent->GetUpVector() * GetCapsuleHalfHeight() * -1), UKismetMathLibrary::MakeRotFromZ(CapsuleHit.ImpactNormal), true, LastHitTest);
+					
+					FRotator RotatorOffset = {0.0f, 0.0f , 0.0f};
+					if(CapsuleHit.ImpactNormal.Dot(CharacterOwner->GetActorForwardVector()) > 0)
+					{
+						RotatorOffset = {CapsuleHit.ImpactNormal.X * 180, CapsuleHit.ImpactNormal.Y * 180, CapsuleHit.ImpactNormal.Z * 180};
+					}
+					FRotator dest = (CapsuleHit.GetActor()->GetActorLocation() - CharacterOwner->GetActorLocation()).Rotation();
+					//FRotator AngleRotation =  FMath::RInterpTo(CharacterOwner->GetController()->GetControlRotation(), dest, deltaTime, 20);
+					//UE_LOG(LogTemp, Warning, TEXT("%f,%f,%f"), CharacterOwner->GetControlRotation().Pitch, CharacterOwner->GetControlRotation().Yaw, CharacterOwner->GetControlRotation().Roll);
+
+					CharacterOwner->GetController()->SetControlRotation(dest);
 				}
 				else
 				{
@@ -215,7 +224,7 @@ void UCustomMovement::PhysWallWalking(float deltaTime, int32 Iterations)
 			DrawDebugSphere(GetWorld(), Hit.ImpactPoint, 15.0, 6, FColor::Yellow, false, -1.0f, 0, 1.0f);
 			SafeMoveUpdatedComponent(NewLocation, NewRotation, true, LastHitTest);
 		}
-		
+		UE_LOG(LogTemp, Warning, TEXT("Normal : %s"),*CharacterOwner->GetActorForwardVector().ToString());
 		// We have to check if player is still near a wall
 		// man this things challenge my sanity
 	}
