@@ -6,6 +6,7 @@
 
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "GameFramework/SpringArmComponent.h"
 
 // Sets default values
 APlayerRobot::APlayerRobot(const class FObjectInitializer& ObjectInitializer)
@@ -33,7 +34,7 @@ void APlayerRobot::BeginPlay()
 void APlayerRobot::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	//FindComponentByClass<USpringArmComponent>()->bUsePawnControlRotation = 1;
 }
 
 void APlayerRobot::Move(const FInputActionValue& Value)
