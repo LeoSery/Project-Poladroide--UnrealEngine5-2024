@@ -6,7 +6,10 @@
 
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "Components/SceneCaptureComponent2D.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "Kismet/KismetRenderingLibrary.h"
 
 // Sets default values
 APlayerRobot::APlayerRobot(const class FObjectInitializer& ObjectInitializer)
@@ -14,7 +17,168 @@ APlayerRobot::APlayerRobot(const class FObjectInitializer& ObjectInitializer)
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+	
+	SphereForLighting = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SphereForLighting"));
+	SphereForLighting->SetupAttachment(RootComponent);
 
+	//Set Static mesh to Sphere
+	const ConstructorHelpers::FObjectFinder<UStaticMesh> SphereMesh(TEXT("/Engine/BasicShapes/Sphere.Sphere"));
+	SphereForLighting->SetStaticMesh(SphereMesh.Object);
+	
+	SphereForLighting->SetRelativeScale3D(FVector(0.5f, 0.5f, 0.5f));
+	SphereForLighting->SetRelativeLocation(FVector(0.0f, 0.0f, 0.0f));
+	SphereForLighting->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	
+	CaptureComponentUp = CreateDefaultSubobject<USceneCaptureComponent2D>(TEXT("CaptureComponentUp"));
+	CaptureComponentUp->SetupAttachment(SphereForLighting);
+	CaptureComponentUp->SetRelativeRotation(FRotator(-90, 0, 0));
+	CaptureComponentUp->SetRelativeLocation(FVector(0.0f,0.0f,60.0f));
+	CaptureComponentUp->ProjectionType = ECameraProjectionMode::Orthographic;
+	CaptureComponentUp->OrthoWidth = 50.0f;
+
+	#pragma region Set Show Flags CaptureComponentDown
+
+	CaptureComponentUp->PrimitiveRenderMode = ESceneCapturePrimitiveRenderMode::PRM_LegacySceneCapture;
+	CaptureComponentUp->bCaptureEveryFrame = true;
+	CaptureComponentUp->bCaptureOnMovement = false;
+	CaptureComponentUp->MaxViewDistanceOverride = 25.0f;
+	CaptureComponentUp->CaptureSource = ESceneCaptureSource::SCS_FinalColorLDR;
+	
+	CaptureComponentUp->ShowFlags.Atmosphere				= false;
+	CaptureComponentUp->ShowFlags.BSP						= false;
+	CaptureComponentUp->ShowFlags.Cloud					= false;
+	CaptureComponentUp->ShowFlags.Decals					= false;
+	CaptureComponentUp->ShowFlags.Fog						= false;
+	CaptureComponentUp->ShowFlags.Landscape				= false;
+	CaptureComponentUp->ShowFlags.Particles				= false;
+	CaptureComponentUp->ShowFlags.SkeletalMeshes			= false;
+	CaptureComponentUp->ShowFlags.StaticMeshes			= true;
+	CaptureComponentUp->ShowFlags.Translucency			= false;
+
+	CaptureComponentUp->ShowFlags.DeferredLighting		= true;
+	CaptureComponentUp->ShowFlags.InstancedFoliage		= false;
+	CaptureComponentUp->ShowFlags.InstancedGrass			= false;
+	CaptureComponentUp->ShowFlags.InstancedStaticMeshes	= false;
+	CaptureComponentUp->ShowFlags.Paper2DSprites			= false;
+	CaptureComponentUp->ShowFlags.TextRender				= false;
+	CaptureComponentUp->ShowFlags.TemporalAA				= false;
+
+	CaptureComponentUp->ShowFlags.Bloom					= false;
+	CaptureComponentUp->ShowFlags.EyeAdaptation			= false;
+	CaptureComponentUp->ShowFlags.LocalExposure			= false;
+	CaptureComponentUp->ShowFlags.MotionBlur				= false;
+	CaptureComponentUp->ShowFlags.ToneCurve				= false;
+
+	CaptureComponentUp->ShowFlags.SkyLighting				= false;
+	CaptureComponentUp->ShowFlags.AmbientOcclusion		= true;
+	CaptureComponentUp->ShowFlags.DynamicShadows			= true;
+
+	CaptureComponentUp->ShowFlags.AmbientCubemap			= true;
+	CaptureComponentUp->ShowFlags.DistanceFieldAO			= true;
+	CaptureComponentUp->ShowFlags.LightFunctions			= true;
+	CaptureComponentUp->ShowFlags.LightShafts				= true;
+	CaptureComponentUp->ShowFlags.ReflectionEnvironment	= true;
+
+	CaptureComponentUp->ShowFlags.ScreenSpaceReflections	= false;
+	CaptureComponentUp->ShowFlags.TexturedLightProfiles	= false;
+	CaptureComponentUp->ShowFlags.VolumetricFog			= false;
+
+	CaptureComponentUp->ShowFlags.NaniteMeshes			= true;
+	CaptureComponentUp->ShowFlags.Game					= false;
+	CaptureComponentUp->ShowFlags.Lighting				= true;
+	CaptureComponentUp->ShowFlags.PathTracing				= false;
+	CaptureComponentUp->ShowFlags.PostProcessing			= true;
+
+#pragma endregion
+
+	CaptureComponentDown = CreateDefaultSubobject<USceneCaptureComponent2D>(TEXT("CaptureComponentDown"));
+	CaptureComponentDown->SetupAttachment(SphereForLighting);
+	CaptureComponentDown->SetRelativeRotation(FRotator(90, 0, 0));
+	CaptureComponentDown->SetRelativeLocation(FVector(0.0f,0.0f,-60.0f));
+	CaptureComponentDown->ProjectionType = ECameraProjectionMode::Orthographic;
+	CaptureComponentDown->OrthoWidth = 50.0f;
+
+	#pragma region Set Show Flags CaptureComponentUp
+
+	CaptureComponentDown->PrimitiveRenderMode = ESceneCapturePrimitiveRenderMode::PRM_LegacySceneCapture;
+	CaptureComponentDown->bCaptureEveryFrame = true;
+	CaptureComponentDown->bCaptureOnMovement = false;
+	CaptureComponentDown->MaxViewDistanceOverride = 25.0f;
+	CaptureComponentDown->CaptureSource = ESceneCaptureSource::SCS_FinalColorLDR;
+	
+	CaptureComponentDown->ShowFlags.Atmosphere				= false;
+	CaptureComponentDown->ShowFlags.BSP						= false;
+	CaptureComponentDown->ShowFlags.Cloud					= false;
+	CaptureComponentDown->ShowFlags.Decals					= false;
+	CaptureComponentDown->ShowFlags.Fog						= false;
+	CaptureComponentDown->ShowFlags.Landscape				= false;
+	CaptureComponentDown->ShowFlags.Particles				= false;
+	CaptureComponentDown->ShowFlags.SkeletalMeshes			= false;
+	CaptureComponentDown->ShowFlags.StaticMeshes			= true;
+	CaptureComponentDown->ShowFlags.Translucency			= false;
+
+	CaptureComponentDown->ShowFlags.DeferredLighting		= true;
+	CaptureComponentDown->ShowFlags.InstancedFoliage		= false;
+	CaptureComponentDown->ShowFlags.InstancedGrass			= false;
+	CaptureComponentDown->ShowFlags.InstancedStaticMeshes	= false;
+	CaptureComponentDown->ShowFlags.Paper2DSprites			= false;
+	CaptureComponentDown->ShowFlags.TextRender				= false;
+	CaptureComponentDown->ShowFlags.TemporalAA				= false;
+
+	CaptureComponentDown->ShowFlags.Bloom					= false;
+	CaptureComponentDown->ShowFlags.EyeAdaptation			= false;
+	CaptureComponentDown->ShowFlags.LocalExposure			= false;
+	CaptureComponentDown->ShowFlags.MotionBlur				= false;
+	CaptureComponentDown->ShowFlags.ToneCurve				= false;
+
+	CaptureComponentDown->ShowFlags.SkyLighting				= false;
+	CaptureComponentDown->ShowFlags.AmbientOcclusion		= true;
+	CaptureComponentDown->ShowFlags.DynamicShadows			= true;
+
+	CaptureComponentDown->ShowFlags.AmbientCubemap			= true;
+	CaptureComponentDown->ShowFlags.DistanceFieldAO			= true;
+	CaptureComponentDown->ShowFlags.LightFunctions			= true;
+	CaptureComponentDown->ShowFlags.LightShafts				= true;
+	CaptureComponentDown->ShowFlags.ReflectionEnvironment	= true;
+
+	CaptureComponentDown->ShowFlags.ScreenSpaceReflections	= false;
+	CaptureComponentDown->ShowFlags.TexturedLightProfiles	= false;
+	CaptureComponentDown->ShowFlags.VolumetricFog			= false;
+
+	CaptureComponentDown->ShowFlags.NaniteMeshes			= true;
+	CaptureComponentDown->ShowFlags.Game					= false;
+	CaptureComponentDown->ShowFlags.Lighting				= true;
+	CaptureComponentDown->ShowFlags.PathTracing				= false;
+	CaptureComponentDown->ShowFlags.PostProcessing			= true;
+
+#pragma endregion
+	
+}
+
+float APlayerRobot::CalcLightLevel() const
+{
+	float NormalizedValue= 0.0f;
+	if (RenderTargetMain != nullptr)
+	{
+		UKismetRenderingLibrary::DrawMaterialToRenderTarget(GetWorld(), RenderTargetMain , MaterialForCalcLightLevel);
+		NormalizedValue = UKismetMathLibrary::Fraction(UKismetRenderingLibrary::ReadRenderTargetRawPixel(GetWorld(),RenderTargetMain,0,0,false).R - LightLevelRange.X);
+		return RemapLightLevel(NormalizedValue, LightLevelRange.X, LightLevelRange.Y , 0.0f,1.0f );
+	}
+	//Calc Light Level
+	return -1.0f;
+}
+
+float APlayerRobot::RemapLightLevel(float value, float fromMin, float fromMax, float toMin,  float toMax) const
+{
+	float fromAbs  =  value - fromMin;
+	float fromMaxAbs = fromMax - fromMin;      
+       
+	float normal = fromAbs / fromMaxAbs;
+ 
+	float toMaxAbs = toMax - toMin;
+	float toAbs = toMaxAbs * normal;
+ 
+	return toAbs + toMin;
 }
 
 // Called when the game starts or when spawned
@@ -28,6 +192,7 @@ void APlayerRobot::BeginPlay()
 			Subsystem->AddMappingContext(DefaultMappingContext, 0);
 		}
 	}
+	
 }
 
 // Called every frame
@@ -35,6 +200,7 @@ void APlayerRobot::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	//FindComponentByClass<USpringArmComponent>()->bUsePawnControlRotation = 1;
+	CurrentLightLevel = CalcLightLevel();
 }
 
 void APlayerRobot::Move(const FInputActionValue& Value)
@@ -82,10 +248,8 @@ void APlayerRobot::SetupPlayerInputComponent(class UInputComponent* PlayerInputC
 
 		//Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &APlayerRobot::Look);
-
 		//Interacting
 		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Triggered, this, &APlayerRobot::Interact);
 	}
 	
 }
-
