@@ -7,6 +7,7 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Components/SceneCaptureComponent2D.h"
+#include "Components/CapsuleComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetRenderingLibrary.h"
@@ -191,8 +192,8 @@ void APlayerRobot::BeginPlay()
 		{
 			Subsystem->AddMappingContext(DefaultMappingContext, 0);
 		}
+		GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &APlayerRobot::OnOverlapBegin);
 	}
-	
 }
 
 // Called every frame
@@ -200,7 +201,6 @@ void APlayerRobot::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	//FindComponentByClass<USpringArmComponent>()->bUsePawnControlRotation = 1;
-	CurrentLightLevel = CalcLightLevel();
 }
 
 void APlayerRobot::Move(const FInputActionValue& Value)
@@ -252,4 +252,13 @@ void APlayerRobot::SetupPlayerInputComponent(class UInputComponent* PlayerInputC
 		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Triggered, this, &APlayerRobot::Interact);
 	}
 	
+}
+
+void APlayerRobot::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+	int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (OtherActor && OtherActor->ActorHasTag("CameraPoint"))
+	{
+		RotationPoint = OtherActor;
+	}
 }

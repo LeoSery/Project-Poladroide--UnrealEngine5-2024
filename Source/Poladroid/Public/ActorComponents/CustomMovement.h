@@ -32,6 +32,16 @@ public:
 	virtual bool CanCrouchInCurrentState() const override;
 
 	virtual void PhysCustom(float deltaTime, int32 Iterations) override;
+
+	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	
+	bool first = true;
+	bool CameraMovement = false;
+	bool InAngle = false;
+	FRotator dest = {0,0,0};
+
+	TArray<FVector> LastWallPosition[4];
+	int index = 0;
 	
 #pragma region WallWalk
 

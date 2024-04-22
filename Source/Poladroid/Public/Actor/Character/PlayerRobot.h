@@ -78,6 +78,12 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 	
+	AActor* RotationPoint = nullptr;
+
+	// Camera interpolation movement speed
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Camera")
+	float CameraRotationSpeed = 10;
+	
 protected:	
 	/** Called for movement input */
 	void Move(const FInputActionValue& Value);
@@ -90,4 +96,8 @@ protected:
 	
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	// Call when the player touch it
+	UFUNCTION()
+	void OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 };
