@@ -4,6 +4,7 @@
 #include "ActorComponents/CustomMovement.h"
 
 #include "DelayAction.h"
+#include "Actor/Character/PlayerRobot.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/Character.h"
@@ -70,6 +71,36 @@ void UCustomMovement::PhysCustom(float deltaTime, int32 Iterations)
 			break;
 	}
 	
+}
+
+void UCustomMovement::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	if(CameraMovement && Cast<APlayerRobot>(CharacterOwner)->RotationPoint != nullptr)
+	{
+		dest = (Cast<APlayerRobot>(CharacterOwner)->RotationPoint->GetActorLocation() - CharacterOwner->GetActorLocation()).Rotation();
+		FRotator AngleRotation =  FMath::RInterpTo(CharacterOwner->GetController()->GetControlRotation(), dest, DeltaTime, Cast<APlayerRobot>(CharacterOwner)->CameraRotationSpeed);
+
+		CharacterOwner->GetController()->SetControlRotation(AngleRotation);
+		if(CharacterOwner->GetController()->GetControlRotation().Equals(dest, 10))
+			CameraMovement = false;
+	}
+
+	if(InAngle && Cast<APlayerRobot>(CharacterOwner)->RotationPoint != nullptr)
+	{
+		dest = (Cast<APlayerRobot>(CharacterOwner)->RotationPoint->GetActorForwardVector()*-1).Rotation();
+		FRotator AngleRotation =  FMath::RInterpTo(CharacterOwner->GetController()->GetControlRotation(), dest, DeltaTime, Cast<APlayerRobot>(CharacterOwner)->CameraRotationSpeed);
+
+		CharacterOwner->GetController()->SetControlRotation(AngleRotation);
+		if(CharacterOwner->GetController()->GetControlRotation().Equals(dest, 10))
+		{
+			FVector Delta  = Velocity * DeltaTime;
+			SafeMoveUpdatedComponent(Delta, UpdatedComponent->GetComponentRotation(), true, LastHitTest);
+			InAngle = false;
+		}
+
+	}
 }
 
 void UCustomMovement::PhysWallWalking(float deltaTime, int32 Iterations)
@@ -142,27 +173,37 @@ void UCustomMovement::PhysWallWalking(float deltaTime, int32 Iterations)
 	FHitResult Hit;
 	
 	SafeMoveUpdatedComponent(Delta, NewRotation, true, Hit);
-
-
+	
+	if(LastHitTest.GetActor() && LastHitTest.GetActor()->ActorHasTag("AntiGrip"))
+	{
+		SetMovementMode(MOVE_Walking);
+		UpdatedComponent->SetWorldRotation({ 0, 0, 0 });
+	}
 	
 	if (Hit.bBlockingHit)
 	{
 		LastHitTest = Hit;
+		CameraMovement = true;
+		//InAngle = true;
 		//DrawDebugCapsule(GetWorld(), UpdatedComponent->GetComponentLocation(), GetCapsuleHalfHeight(), GetCapsuleRadius(), UpdatedComponent->GetComponentQuat(),FColor::Red,false,0.0,1,1.0f);
 	}
 	else
 	{
-
+		if(Hit.ImpactNormal.Equals(LastHitTest.ImpactNormal, 10))
+		{
+			//LastWallPosition[index] = Hit.GetActor()->GetActorLocation();
+		}
+		
 		FHitResult OldHit = Hit;
 		FVector Start = UpdatedComponent->GetComponentLocation();
 		FVector End = Start + (UpdatedComponent->GetUpVector() * -1) * (GetCapsuleHalfHeight()*2);
 
 		GetWorld()->SweepSingleByChannel(Hit, Start, End, UpdatedComponent->GetComponentQuat(), ECC_Visibility,
 			FCollisionShape::MakeCapsule(10, GetCapsuleHalfHeight()));
-		//DrawDebugLine(GetWorld(), Start, End, FColor::Silver, false, -1.0f, 1, 1.0f);
 		
 		if(!Hit.bBlockingHit)
 		{
+			
 			FVector StartFirstTrace = Direction * GetCapsuleRadius() + UpdatedComponent->GetComponentLocation();//EndSecond;
 			FVector EndFirstTrace = (UpdatedComponent->GetUpVector() * -1) * 50 + StartFirstTrace;//Direction * -300 + StartThird;
 			FHitResult CapsuleHit;
@@ -175,7 +216,6 @@ void UCustomMovement::PhysWallWalking(float deltaTime, int32 Iterations)
 			if(CapsuleHit.bBlockingHit)
 			{
 				FVector NewLocation = (UpdatedComponent->GetUpVector() * GetCapsuleHalfHeight() * -1);
-				GEngine->AddOnScreenDebugMessage(-1, 0.5f, FColor::Yellow, FString::Printf(TEXT("alu")));
 				SafeMoveUpdatedComponent(NewLocation, UKismetMathLibrary::MakeRotFromZ(CapsuleHit.ImpactNormal), true, LastHitTest);
 			}
 			else
@@ -204,16 +244,7 @@ void UCustomMovement::PhysWallWalking(float deltaTime, int32 Iterations)
 					CharacterOwner->SetActorRotation(UKismetMathLibrary::MakeRotFromZ(CapsuleHit.ImpactNormal));
 					SafeMoveUpdatedComponent((UpdatedComponent->GetUpVector() * GetCapsuleHalfHeight() * -1), UKismetMathLibrary::MakeRotFromZ(CapsuleHit.ImpactNormal), true, LastHitTest);
 					
-					FRotator RotatorOffset = {0.0f, 0.0f , 0.0f};
-					if(CapsuleHit.ImpactNormal.Dot(CharacterOwner->GetActorForwardVector()) > 0)
-					{
-						RotatorOffset = {CapsuleHit.ImpactNormal.X * 180, CapsuleHit.ImpactNormal.Y * 180, CapsuleHit.ImpactNormal.Z * 180};
-					}
-					FRotator dest = (CapsuleHit.GetActor()->GetActorLocation() - CharacterOwner->GetActorLocation()).Rotation();
-					//FRotator AngleRotation =  FMath::RInterpTo(CharacterOwner->GetController()->GetControlRotation(), dest, deltaTime, 20);
-					//UE_LOG(LogTemp, Warning, TEXT("%f,%f,%f"), CharacterOwner->GetControlRotation().Pitch, CharacterOwner->GetControlRotation().Yaw, CharacterOwner->GetControlRotation().Roll);
-
-					CharacterOwner->GetController()->SetControlRotation(dest);
+					CameraMovement = true;
 				}
 				else
 				{
@@ -228,8 +259,13 @@ void UCustomMovement::PhysWallWalking(float deltaTime, int32 Iterations)
 			FVector NewLocation = (UpdatedComponent->GetUpVector() * GetCapsuleHalfHeight() * -1);
 			//DrawDebugSphere(GetWorld(), Hit.ImpactPoint, 15.0, 6, FColor::Yellow, false, -1.0f, 0, 1.0f);
 			SafeMoveUpdatedComponent(NewLocation, NewRotation, true, LastHitTest);
+			if(first && Cast<APlayerRobot>(CharacterOwner)->RotationPoint != nullptr)
+			{
+				CharacterOwner->GetController()->SetControlRotation((Cast<APlayerRobot>(CharacterOwner)->RotationPoint->GetActorLocation() - CharacterOwner->GetActorLocation()).Rotation());
+				first = false;
+			}
 		}
-		UE_LOG(LogTemp, Warning, TEXT("Normal : %s"),*CharacterOwner->GetActorForwardVector().ToString());
+		//UE_LOG(LogTemp, Warning, TEXT("Normal : %s"),*CharacterOwner->GetActorForwardVector().ToString());
 		// We have to check if player is still near a wall
 		// man this things challenge my sanity
 	}
