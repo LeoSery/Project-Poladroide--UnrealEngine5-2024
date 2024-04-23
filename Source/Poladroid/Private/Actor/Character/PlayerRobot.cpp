@@ -161,7 +161,6 @@ float APlayerRobot::CalcLightLevel() const
 	if (RenderTargetMain != nullptr)
 	{
 		UKismetRenderingLibrary::DrawMaterialToRenderTarget(GetWorld(), RenderTargetMain , MaterialForCalcLightLevel);
-		//NormalizedValue = UKismetMathLibrary::Fraction(UKismetRenderingLibrary::ReadRenderTargetRawPixel(GetWorld(),RenderTargetMain,0,0,false).R - LightLevelRange.X);
 		return UKismetRenderingLibrary::ReadRenderTargetRawPixel(GetWorld(),RenderTargetMain,0,0,false).R;
 	}
 	//Calc Light Level
