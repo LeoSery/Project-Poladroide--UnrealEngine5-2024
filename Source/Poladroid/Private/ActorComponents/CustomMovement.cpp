@@ -217,10 +217,13 @@ void UCustomMovement::PhysWallWalking(float deltaTime, int32 Iterations)
 			}
 		}
 		
-		if(LastHitTest.GetActor()->ActorHasTag("AntiGrip") || LastHitTest.Component->ComponentHasTag("AntiGrip"))
+		if(LastHitTest.bBlockingHit)
 		{
-			CharacterOwner->SetActorLocation(lastWallPosition.GetLocation());
-			LastHitTest = OldHitTest;
+			if ( LastHitTest.GetActor() != nullptr && LastHitTest.GetActor()->ActorHasTag("AntiGrip") || LastHitTest.Component->ComponentHasTag("AntiGrip"))
+			{
+				CharacterOwner->SetActorLocation(lastWallPosition.GetLocation());
+				LastHitTest = OldHitTest;
+			}
 		}
 		//UE_LOG(LogTemp, Warning, TEXT("Normal : %s"),*CharacterOwner->GetActorForwardVector().ToString());
 		// We have to check if player is still near a wall
