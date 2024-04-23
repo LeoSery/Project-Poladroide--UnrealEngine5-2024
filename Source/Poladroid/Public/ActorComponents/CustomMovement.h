@@ -39,6 +39,7 @@ public:
 	bool CameraMovement = false;
 	bool InAngle = false;
 	FRotator dest = {0,0,0};
+	FTransform lastWallPosition;
 
 	TArray<FVector> LastWallPosition[4];
 	int index = 0;
