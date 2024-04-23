@@ -58,12 +58,15 @@ private:
 	UPROPERTY(EditAnywhere , Category = "LightLevel" , meta = (AllowPrivateAccess = "true"))
 	float CurrentLightLevel;
 
-	UPROPERTY(EditAnywhere, Category = "LightLevel", meta = (AllowPrivateAccess = "true" ,ToolTip = "Get the current light level"))
+	UPROPERTY(EditAnywhere, Category = "LightLevel", meta = (AlalowPrivateAccess = "true" ,ToolTip = "Get the current light level"))
 	FVector2D LightLevelRange;	//min and max light level
 
 	UFUNCTION(BlueprintCallable, Category = "LightLevel")
-	virtual float GetLightLevel_Implementation() override {return CurrentLightLevel;}
+	virtual float GetLightLevel_Implementation() override {return RemapLightLevel(CurrentLightLevel, LightLevelRange.X, LightLevelRange.Y , 0.0f,1.0f );}
 
+	UFUNCTION(BlueprintCallable, Category = "LightLevel" , meta = (AllowPrivate))
+	float GetRawLightLevel() const {return CurrentLightLevel;}
+	
 	UFUNCTION() 
 	float CalcLightLevel() const;
 

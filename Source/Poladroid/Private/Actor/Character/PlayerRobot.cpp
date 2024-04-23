@@ -158,12 +158,11 @@ APlayerRobot::APlayerRobot(const class FObjectInitializer& ObjectInitializer)
 
 float APlayerRobot::CalcLightLevel() const
 {
-	float NormalizedValue= 0.0f;
 	if (RenderTargetMain != nullptr)
 	{
 		UKismetRenderingLibrary::DrawMaterialToRenderTarget(GetWorld(), RenderTargetMain , MaterialForCalcLightLevel);
-		NormalizedValue = UKismetMathLibrary::Fraction(UKismetRenderingLibrary::ReadRenderTargetRawPixel(GetWorld(),RenderTargetMain,0,0,false).R - LightLevelRange.X);
-		return RemapLightLevel(NormalizedValue, LightLevelRange.X, LightLevelRange.Y , 0.0f,1.0f );
+		//NormalizedValue = UKismetMathLibrary::Fraction(UKismetRenderingLibrary::ReadRenderTargetRawPixel(GetWorld(),RenderTargetMain,0,0,false).R - LightLevelRange.X);
+		return UKismetRenderingLibrary::ReadRenderTargetRawPixel(GetWorld(),RenderTargetMain,0,0,false).R;
 	}
 	//Calc Light Level
 	return -1.0f;
@@ -200,7 +199,7 @@ void APlayerRobot::BeginPlay()
 void APlayerRobot::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	//FindComponentByClass<USpringArmComponent>()->bUsePawnControlRotation = 1;
+	CurrentLightLevel = CalcLightLevel();
 }
 
 void APlayerRobot::Move(const FInputActionValue& Value)
