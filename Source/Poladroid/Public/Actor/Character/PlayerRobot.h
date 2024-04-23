@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "InputActionValue.h"
 #include "Interfaces/InterfaceLightLevel.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "PlayerRobot.generated.h"
 
 class UInputComponent;
@@ -62,7 +63,7 @@ private:
 	FVector2D LightLevelRange;	//min and max light level
 
 	UFUNCTION(BlueprintCallable, Category = "LightLevel")
-	virtual float GetLightLevel_Implementation() override { return RemapLightLevel(CurrentLightLevel, LightLevelRange.X, LightLevelRange.Y , 0.0f,1.0f );}
+	virtual float GetLightLevel_Implementation() override { return UKismetMathLibrary::FClamp(RemapLightLevel(CurrentLightLevel, LightLevelRange.X, LightLevelRange.Y , 0.0f,1.0f ),0,1);}
 
 	UFUNCTION(BlueprintCallable, Category = "LightLevel" , meta = (AllowPrivate))
 	float GetRawLightLevel() const {return CurrentLightLevel;}
