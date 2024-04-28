@@ -260,3 +260,7 @@ void APlayerRobot::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* O
 		RotationPoint = OtherActor;
 	}
 }
+
+void APlayerRobot::OnRespawn_Implementation()
+{
+}
