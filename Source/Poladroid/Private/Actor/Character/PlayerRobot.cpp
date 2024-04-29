@@ -154,6 +154,25 @@ APlayerRobot::APlayerRobot(const class FObjectInitializer& ObjectInitializer)
 
 #pragma endregion
 	
+	LightLevelMap.Add(ELightLevel::LightLevel_Low, 0.0f);//if superiror to this value, the light level is Medium else it's Low
+	LightLevelMap.Add(ELightLevel::LightLevel_Medium , 0.0f); // if superior to this value, the light level is High else it's Medium
+	
+}
+
+ELightLevel APlayerRobot::GetLightLevel_Implementation()
+{
+	if (GetLightLevelValue_Implementation() < LightLevelMap[ELightLevel::LightLevel_Low])
+	{
+		return ELightLevel::LightLevel_Low;
+	}
+	else if (GetLightLevelValue_Implementation() < LightLevelMap[ELightLevel::LightLevel_Medium])
+	{
+		return ELightLevel::LightLevel_Medium;
+	}
+	else
+	{
+		return ELightLevel::LightLevel_High;
+	}
 }
 
 float APlayerRobot::CalcLightLevel() const

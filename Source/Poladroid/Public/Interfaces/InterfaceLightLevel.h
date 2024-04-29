@@ -13,6 +13,16 @@ class UInterfaceLightLevel : public UInterface
 	GENERATED_BODY()
 };
 
+UENUM(BlueprintType)
+enum class ELightLevel : uint8
+{
+	LightLevel_None		UMETA(Hidden),
+	LightLevel_Low		UMETA(DisplayName = "Low"),
+	LightLevel_Medium	UMETA(DisplayName = "Medium"),
+	LightLevel_High		UMETA(DisplayName = "High"),
+	LightLevel_MAX		UMETA(Hidden),
+};
+
 /**
  * 
  */
@@ -23,5 +33,7 @@ class POLADROID_API IInterfaceLightLevel
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 	UFUNCTION(BlueprintCallable , BlueprintNativeEvent , Category = "LightLevel")
-	float GetLightLevel();
+	float GetLightLevelValue();
+	UFUNCTION(BlueprintCallable , BlueprintNativeEvent , Category = "LightLevel")
+	ELightLevel GetLightLevel();
 };
