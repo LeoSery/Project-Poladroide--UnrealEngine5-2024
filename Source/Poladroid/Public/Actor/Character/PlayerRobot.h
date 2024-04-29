@@ -35,11 +35,15 @@ class POLADROID_API APlayerRobot : public ACharacter , public IInterfaceLightLev
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputAction*			LookAction;
 
-	
 public:
 	// Sets default values for this character's properties
 	APlayerRobot(const class FObjectInitializer& ObjectInitializer);
 
+protected:
+	// Called when the game starts or when spawned
+	virtual void BeginPlay() override;
+
+#pragma region LightLevel
 private:
 	//CAPTURE COMPONENT 2D
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "LightLevel", meta = (AllowPrivateAccess = "true"))
@@ -73,10 +77,8 @@ private:
 
 	UFUNCTION(BlueprintCallable, Category = "LightLevel" , meta = (AllowPrivate))
 	float RemapLightLevel(float from, float fromMin, float fromMax, float toMin,  float toMax) const;
-	
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
+
+#pragma endregion
 
 public:	
 	// Called every frame
@@ -104,4 +106,9 @@ protected:
 	// Call when the player touch it
 	UFUNCTION()
 	void OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+public: //Sadly we need to make this public to be able to call it from Blueprints
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Respawn" , meta = (DisplayName = "OnRespawn" , AllowPrivateAccess = "true" , ToolTip = "Called when the player respawns"))
+	void OnRespawn();
+	virtual void OnRespawn_Implementation();
 };
