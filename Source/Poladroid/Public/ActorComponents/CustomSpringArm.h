@@ -14,5 +14,5 @@ class POLADROID_API UCustomSpringArm : public USpringArmComponent
 {
 	GENERATED_BODY()
 
-	virtual void GetTargetRotation();
+	//virtual void GetTargetRotation();
 };
