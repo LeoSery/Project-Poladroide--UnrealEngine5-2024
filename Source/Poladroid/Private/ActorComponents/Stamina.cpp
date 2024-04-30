@@ -3,6 +3,8 @@
 
 #include "ActorComponents/Stamina.h"
 
+#include "DamgeTypes/StaminaDamage.h"
+
 // Sets default values for this component's properties
 UStamina::UStamina()
 {
@@ -11,6 +13,16 @@ UStamina::UStamina()
 	PrimaryComponentTick.bCanEverTick = true;
 
 	// ...
+}
+
+// Called when the game starts
+void UStamina::BeginPlay()
+{
+	Super::BeginPlay();
+
+	GetOwner()->OnTakeAnyDamage.AddDynamic(this, &UStamina::OnOwnerTakeDamage);
+	// ...
+	
 }
 
 float UStamina::GetCurrentStamina()
@@ -83,16 +95,6 @@ void UStamina::UpdateStamina()
 	
 }
 
-// Called when the game starts
-void UStamina::BeginPlay()
-{
-	Super::BeginPlay();
-
-	// ...
-	
-}
-
-
 // Called every frame
 void UStamina::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
@@ -108,6 +110,23 @@ void UStamina::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 		{
 			this->SetComponentTickEnabled(false);
 		}
+	}
+}
+
+void UStamina::OnOwnerTakeDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType,
+	AController* InstigatedBy, AActor* DamageCauser)
+{
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Owner Take Damage"));
+	//Cast DamageType to DamageTypeToRemoveStamina;
+	if (const UStaminaDamage* DamageTypeToRemoveStamina = Cast<UStaminaDamage>(DamageType))
+	{
+		SetComponentTickEnabled(false);
+		CurrentStamina = 0;
+		StaminaLerpedValue = CurrentStamina;
+		OnStaminaReachedZero.Broadcast();
+		OnStaminaLerpedUpdated.Broadcast(StaminaLerpedValue);
+		OnStaminaUpdated.Broadcast(CurrentStamina);
+		StartRegenStamina();
 	}
 }
 

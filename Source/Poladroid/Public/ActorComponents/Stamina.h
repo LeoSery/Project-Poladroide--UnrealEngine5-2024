@@ -70,7 +70,7 @@ private:
 	
 	UPROPERTY(BlueprintAssignable, meta = (AllowPrivateAccess = "true" , tooltip = " Called When Stamina Lerped Value is updated"), Category = "Stamina | Events")
 	FOnStaminaLerpedUpdated OnStaminaLerpedUpdated;
-
+	
 	UPROPERTY()
 	FTimerHandle TimerHandle_StaminaUpdate;
 
@@ -94,5 +94,8 @@ public://///
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	// Called when the Owner take damage
+	UFUNCTION()
+	virtual void OnOwnerTakeDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser);
 		
 };
