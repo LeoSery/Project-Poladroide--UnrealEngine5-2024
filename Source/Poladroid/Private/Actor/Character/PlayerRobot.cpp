@@ -6,8 +6,11 @@
 
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "ActorComponents/Stamina.h"
 #include "Components/SceneCaptureComponent2D.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/LightComponent.h"
+#include "Components/SpotLightComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetRenderingLibrary.h"
@@ -156,6 +159,15 @@ APlayerRobot::APlayerRobot(const class FObjectInitializer& ObjectInitializer)
 	
 	LightLevelMap.Add(ELightLevel::LightLevel_Low, 0.0f);//if superiror to this value, the light level is Medium else it's Low
 	LightLevelMap.Add(ELightLevel::LightLevel_Medium , 0.0f); // if superior to this value, the light level is High else it's Medium
+
+	StaminaComponent = CreateDefaultSubobject<UStamina>(TEXT("StaminaComponent"));
+
+	LightComponent = CreateDefaultSubobject<USpotLightComponent>(TEXT("FrontLightComponent"));
+	LightComponent->SetupAttachment(GetMesh(), FName("FrontLightSocket"));
+	LightComponent->SetRelativeRotation(FRotator(0.0f, 0.0f, 0.0f));
+	LightComponent->SetRelativeLocation(FVector(0.0f, 0.0f, 0.0f));
+
+	
 	
 }
 
@@ -211,6 +223,8 @@ void APlayerRobot::BeginPlay()
 		}
 		GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &APlayerRobot::OnOverlapBegin);
 	}
+	DefaultLightIntensity = LightComponent->Intensity;
+	LightComponent->SetIntensity(0.0f);
 }
 
 // Called every frame
@@ -282,4 +296,28 @@ void APlayerRobot::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* O
 
 void APlayerRobot::OnRespawn_Implementation()
 {
+}
+
+void APlayerRobot::EnableWallWalking_Implementation()
+{
+	IPlayerInterface::EnableWallWalking_Implementation();
+}
+
+void APlayerRobot::DisableWallWalking_Implementation()
+{
+	IPlayerInterface::DisableWallWalking_Implementation();
+}
+
+void APlayerRobot::EnableFlashLight_Implementation(bool bEnable)
+{
+	
+	if (bEnable)
+	{
+		LightComponent->SetIntensity(DefaultLightIntensity);
+	}
+	else
+	{
+		LightComponent->SetIntensity(0.0f);
+	}
+	IPlayerInterface::EnableFlashLight_Implementation(bEnable);
 }

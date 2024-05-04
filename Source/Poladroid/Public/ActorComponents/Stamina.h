@@ -33,6 +33,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Stamina")
 	void StartRegenStamina();
+
+	UFUNCTION(BlueprintCallable, Category = "Stamina")
+	void PauseStamina();
 	
 private:
 

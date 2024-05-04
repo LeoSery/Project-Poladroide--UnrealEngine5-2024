@@ -68,6 +68,16 @@ void UStamina::StartRegenStamina()
 	OnStaminaLossStoped.Broadcast();
 }
 
+void UStamina::PauseStamina()
+{
+	if (GetWorld()->GetTimerManager().IsTimerPaused(TimerHandle_StaminaUpdate))
+	{
+		return;
+	}
+	GetWorld()->GetTimerManager().PauseTimer(TimerHandle_StaminaUpdate);
+	this->SetComponentTickEnabled(false);
+}
+
 
 void UStamina::UpdateStamina()
 {
@@ -100,7 +110,7 @@ void UStamina::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	//Hi i use this tick to update the lerped value of the stamina
+	//Hi , I use this tick to update the lerped value of the stamina
 	if (bEnableLerpedValue)
 	{
 		StaminaLerpedValue = FMath::FInterpTo(StaminaLerpedValue, CurrentStamina, DeltaTime, LerpSpeed);

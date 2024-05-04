@@ -5,14 +5,18 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "InputActionValue.h"
+
 #include "Interfaces/InterfaceLightLevel.h"
+#include "Interfaces/PlayerInterface.h"
+
 #include "Kismet/KismetMathLibrary.h"
 #include "PlayerRobot.generated.h"
 
+class UStamina;
 class UInputComponent;
 
 UCLASS()
-class POLADROID_API APlayerRobot : public ACharacter , public IInterfaceLightLevel
+class POLADROID_API APlayerRobot : public ACharacter , public IInterfaceLightLevel , public IPlayerInterface
 {
 	GENERATED_BODY()
 
@@ -35,6 +39,12 @@ class POLADROID_API APlayerRobot : public ACharacter , public IInterfaceLightLev
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputAction*			LookAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	UStamina* StaminaComponent;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	class USpotLightComponent* LightComponent;
+	
 public:
 	// Sets default values for this character's properties
 	APlayerRobot(const class FObjectInitializer& ObjectInitializer);
@@ -113,8 +123,22 @@ protected:
 	UFUNCTION()
 	void OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
+	UPROPERTY()
+	float DefaultLightIntensity ;
+
 public: //Sadly we need to make this public to be able to call it from Blueprints
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Respawn" , meta = (DisplayName = "OnRespawn" , AllowPrivateAccess = "true" , ToolTip = "Called when the player respawns"))
 	void OnRespawn();
 	virtual void OnRespawn_Implementation();
+
+	UFUNCTION(BlueprintCallable , BlueprintNativeEvent , Category = "LightLevel")
+	void EnableWallWalking();
+	virtual void EnableWallWalking_Implementation() override;
+	UFUNCTION(BlueprintCallable , BlueprintNativeEvent , Category = "LightLevel")
+	void DisableWallWalking();
+	virtual void DisableWallWalking_Implementation() override;
+
+	UFUNCTION(BlueprintCallable , BlueprintNativeEvent , Category = "LightLevel")
+	void EnableFlashLight(bool bEnable);
+	void EnableFlashLight_Implementation(bool bEnable);
 };
