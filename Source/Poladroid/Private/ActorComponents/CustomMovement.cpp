@@ -35,7 +35,10 @@ void UCustomMovement::UpdateCharacterStateBeforeMovement(float DeltaSeconds)
 			if (GetFutureCollision(DeltaSeconds).bBlockingHit)
 			{
 				LastHitTest = GetFutureCollision(DeltaSeconds);
-				SetMovementMode(MOVE_Custom, CMOVE_WallWalk);
+				if ( LastHitTest.GetActor() != nullptr && !LastHitTest.GetActor()->ActorHasTag("NotGripable") )
+				{
+					SetMovementMode(MOVE_Custom, CMOVE_WallWalk);
+				}
 			}
 
 		break;
@@ -76,6 +79,8 @@ void UCustomMovement::PhysCustom(float deltaTime, int32 Iterations)
 void UCustomMovement::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	UE_LOG(LogTemp, Warning, TEXT("R : %f, P : %f, Y : %f"), CharacterOwner->GetControlRotation().Roll, CharacterOwner->GetControlRotation().Pitch, CharacterOwner->GetControlRotation().Yaw);
 	
 	if(CameraMovement && Cast<APlayerRobot>(CharacterOwner)->RotationPoint != nullptr)
 	{
