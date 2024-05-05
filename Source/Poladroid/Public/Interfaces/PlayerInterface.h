@@ -12,7 +12,6 @@ class UPlayerInterface : public UInterface
 {
 	GENERATED_BODY()
 };
-
 /**
  * 
  */
@@ -23,12 +22,18 @@ class POLADROID_API IPlayerInterface
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 	
-	UFUNCTION(BlueprintCallable , BlueprintNativeEvent , Category = "LightLevel")
+	UFUNCTION(BlueprintCallable , BlueprintNativeEvent , Category = "Walking")
 	void EnableWallWalking();
 	
-	UFUNCTION(BlueprintCallable , BlueprintNativeEvent , Category = "LightLevel")
+	UFUNCTION(BlueprintCallable , BlueprintNativeEvent , Category = "Walking")
 	void DisableWallWalking();
 
-	UFUNCTION(BlueprintCallable , BlueprintNativeEvent , Category = "LightLevel")
+	UFUNCTION(BlueprintCallable , BlueprintNativeEvent , Category = "FlashLight")
 	void EnableFlashLight(bool bEnable);
+	
+	UFUNCTION(BlueprintCallable , BlueprintNativeEvent , Category = "AlertLevel")
+	void SetDetectionLevel(AActor* ActorViewingPlayer,int32 Level);
+
+	UFUNCTION(BlueprintCallable , BlueprintNativeEvent , Category = "AlertLevel")
+	void SetDetectedPercent(AActor* ActorViewingPlayer, float Percent);
 };

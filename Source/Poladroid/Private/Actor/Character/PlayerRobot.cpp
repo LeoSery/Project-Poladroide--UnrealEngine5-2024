@@ -321,3 +321,81 @@ void APlayerRobot::EnableFlashLight_Implementation(bool bEnable)
 	}
 	IPlayerInterface::EnableFlashLight_Implementation(bEnable);
 }
+
+void APlayerRobot::SetDetectionLevel_Implementation(AActor* ActorViewingPlayer,int32 Level)
+{
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Level : %d"), Level));
+	SetDetectionLevelInMap(ActorViewingPlayer, Level);
+	UpdateLevelDetection();
+}
+
+void APlayerRobot::UpdateLevelDetection()
+{
+	int32 Max = 0;
+	for (auto& DetectionLevel : DetectionLevelMap)
+	{
+		DetectionLevel.Value > Max ? Max = DetectionLevel.Value : Max;
+	}
+	InternalDetectionLevel = Max;
+	OnDetectionLevelUpdated(InternalDetectionLevel);
+}
+
+void APlayerRobot::OnDetectionPercentUpdated_Implementation(float DetectionPercent)
+{
+}
+
+void APlayerRobot::OnDetectionLevelUpdated_Implementation(int32 DetectionLevel)
+{
+}
+
+void APlayerRobot::SetDetectedPercent_Implementation(AActor* ActorViewingPlayer, float Percent)
+{
+	IPlayerInterface::SetDetectedPercent_Implementation(ActorViewingPlayer, Percent);
+	if (InternalDetectionLevel > 2)
+	{
+		return;
+	}
+	if (DetectionPercentMap.Find(ActorViewingPlayer))
+	{
+		DetectionPercentMap[ActorViewingPlayer] = Percent;
+	}
+	else if (Percent != 0.0f)
+	{
+		DetectionPercentMap.Add(ActorViewingPlayer, Percent);
+	}
+
+	
+	float Max = 0;
+	for (auto& DetectionPercentVal : DetectionPercentMap)
+	{
+		DetectionPercentVal.Value > Max ? Max = DetectionPercentVal.Value : Max;
+	}
+	InternalDetectionPercent = Max;
+	OnDetectionPercentUpdated(InternalDetectionPercent);
+}
+
+void APlayerRobot::SetDetectionLevelInMap(AActor* ActorViewingPlayer, int32 Level)
+{
+	
+	if (DetectionLevelMap.Find(ActorViewingPlayer))
+	{
+		if (Level == 0)
+		{
+			DetectionLevelMap.Remove(ActorViewingPlayer);
+			if (DetectionPercentMap.Find(ActorViewingPlayer))
+			{
+				DetectionPercentMap.Remove(ActorViewingPlayer);
+			}
+		}
+		else
+		{
+			DetectionLevelMap[ActorViewingPlayer] = Level;
+		}
+	}
+	else if (Level != 0)
+	{
+		DetectionLevelMap.Add(ActorViewingPlayer, Level);
+	}
+}
+
+

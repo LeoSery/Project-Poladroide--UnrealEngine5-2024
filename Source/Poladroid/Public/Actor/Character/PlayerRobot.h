@@ -15,6 +15,8 @@
 class UStamina;
 class UInputComponent;
 
+
+
 UCLASS()
 class POLADROID_API APlayerRobot : public ACharacter , public IInterfaceLightLevel , public IPlayerInterface
 {
@@ -134,6 +136,7 @@ public: //Sadly we need to make this public to be able to call it from Blueprint
 	UFUNCTION(BlueprintCallable , BlueprintNativeEvent , Category = "LightLevel")
 	void EnableWallWalking();
 	virtual void EnableWallWalking_Implementation() override;
+	
 	UFUNCTION(BlueprintCallable , BlueprintNativeEvent , Category = "LightLevel")
 	void DisableWallWalking();
 	virtual void DisableWallWalking_Implementation() override;
@@ -141,4 +144,26 @@ public: //Sadly we need to make this public to be able to call it from Blueprint
 	UFUNCTION(BlueprintCallable , BlueprintNativeEvent , Category = "LightLevel")
 	void EnableFlashLight(bool bEnable);
 	void EnableFlashLight_Implementation(bool bEnable);
+
+	UFUNCTION(BlueprintCallable , BlueprintNativeEvent , Category = "AlertLevel")
+	void SetDetectionLevel(AActor* ActorViewingPlayer,int32 Level);
+	void SetDetectionLevel_Implementation(AActor* ActorViewingPlayer,int32 Level);
+
+	UFUNCTION(BlueprintCallable , BlueprintNativeEvent , Category = "AlertLevel")
+	void SetDetectedPercent(AActor* ActorViewingPlayer, float Percent);
+	void SetDetectedPercent_Implementation(AActor* ActorViewingPlayer, float Percent);
+	
+	UFUNCTION()
+	void SetDetectionLevelInMap(AActor* ActorViewingPlayer, int32 Level); void UpdateLevelDetection();
+	
+	TMap<AActor*,int32> DetectionLevelMap;
+	TMap<AActor*,float > DetectionPercentMap;
+	int32 InternalDetectionLevel = 0;
+	float InternalDetectionPercent = 0;
+
+	UFUNCTION(BlueprintNativeEvent , BlueprintCallable , Category = "DetectionLevel")
+	void OnDetectionLevelUpdated(int32 DetectionLevel);
+	UFUNCTION(BlueprintNativeEvent , BlueprintCallable , Category = "DetectionLevel")
+	void OnDetectionPercentUpdated(float DetectionPercent);
+	
 };
