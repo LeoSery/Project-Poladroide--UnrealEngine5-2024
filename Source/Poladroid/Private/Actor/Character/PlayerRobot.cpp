@@ -50,7 +50,7 @@ APlayerRobot::APlayerRobot(const class FObjectInitializer& ObjectInitializer)
 	
 	CaptureComponentUp->ShowFlags.Atmosphere				= false;
 	CaptureComponentUp->ShowFlags.BSP						= false;
-	CaptureComponentUp->ShowFlags.Cloud					= false;
+	//CaptureComponentUp->ShowFlags.Cloud					= false;
 	CaptureComponentUp->ShowFlags.Decals					= false;
 	CaptureComponentUp->ShowFlags.Fog						= false;
 	CaptureComponentUp->ShowFlags.Landscape				= false;
@@ -112,7 +112,7 @@ APlayerRobot::APlayerRobot(const class FObjectInitializer& ObjectInitializer)
 	
 	CaptureComponentDown->ShowFlags.Atmosphere				= false;
 	CaptureComponentDown->ShowFlags.BSP						= false;
-	CaptureComponentDown->ShowFlags.Cloud					= false;
+	//CaptureComponentDown->ShowFlags.Cloud					= false;
 	CaptureComponentDown->ShowFlags.Decals					= false;
 	CaptureComponentDown->ShowFlags.Fog						= false;
 	CaptureComponentDown->ShowFlags.Landscape				= false;
