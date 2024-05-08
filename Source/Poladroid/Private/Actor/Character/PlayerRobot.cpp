@@ -340,6 +340,11 @@ void APlayerRobot::UpdateLevelDetection()
 	OnDetectionLevelUpdated(InternalDetectionLevel);
 }
 
+void APlayerRobot::EnableOpacityMaterialEffect_Implementation(bool bEnable)
+{
+	IPlayerInterface::EnableOpacityMaterialEffect_Implementation(bEnable);
+}
+
 void APlayerRobot::OnDetectionPercentUpdated_Implementation(float DetectionPercent)
 {
 }

@@ -165,5 +165,8 @@ public: //Sadly we need to make this public to be able to call it from Blueprint
 	void OnDetectionLevelUpdated(int32 DetectionLevel);
 	UFUNCTION(BlueprintNativeEvent , BlueprintCallable , Category = "DetectionLevel")
 	void OnDetectionPercentUpdated(float DetectionPercent);
-	
+
+	UFUNCTION(BlueprintCallable , BlueprintNativeEvent , Category = "Material")
+	void EnableOpacityMaterialEffect(bool bEnable);
+	void EnableOpacityMaterialEffect_Implementation(bool bEnable);
 };
