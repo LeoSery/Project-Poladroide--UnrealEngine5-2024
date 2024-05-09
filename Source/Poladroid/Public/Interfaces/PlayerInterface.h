@@ -36,4 +36,7 @@ public:
 
 	UFUNCTION(BlueprintCallable , BlueprintNativeEvent , Category = "AlertLevel")
 	void SetDetectedPercent(AActor* ActorViewingPlayer, float Percent);
+
+	UFUNCTION(BlueprintCallable , BlueprintNativeEvent , Category = "Material")
+	void EnableOpacityMaterialEffect(bool bEnable);
 };
