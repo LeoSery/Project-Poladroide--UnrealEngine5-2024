@@ -56,6 +56,9 @@ private:
 		ToolTip = "	Stamina is updated 30 time per frames so StaminaRegenRate is added every 1/30"	), Category = "Stamina | Settings")
 	float StaminaDecayRate;
 
+	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = "true"), Category = "Stamina")
+	bool bIsLoosingStamina = false;
+	
 	UPROPERTY(BlueprintAssignable, meta = (AllowPrivateAccess = "true" , tooltip = " Called When Stamina Decreased"), Category = "Stamina | Events")
 	FOnStaminaLossStarted OnStaminaLossStarted;
 	
