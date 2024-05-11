@@ -38,7 +38,7 @@ float UStamina::GetLerpedStamina()
 void UStamina::StartLoosingStamina()
 {
 	bLoseStamina = true;
-
+	bIsLoosingStamina = bLoseStamina;
 	if (! TimerHandle_StaminaUpdate.IsValid())
 	{
 		GetWorld()->GetTimerManager().SetTimer(TimerHandle_StaminaUpdate, this, &UStamina::UpdateStamina, UpdateRate, true);
@@ -55,7 +55,7 @@ void UStamina::StartLoosingStamina()
 void UStamina::StartRegenStamina()
 {
 	bLoseStamina = false;
-
+	bIsLoosingStamina = bLoseStamina;
 	if (!TimerHandle_StaminaUpdate.IsValid())
 	{
 		GetWorld()->GetTimerManager().SetTimer(TimerHandle_StaminaUpdate, this, &UStamina::UpdateStamina, UpdateRate, true);
@@ -83,6 +83,8 @@ void UStamina::UpdateStamina()
 {
 	float AddedStamina = bLoseStamina ? -StaminaDecayRate : StaminaRegenRate;
 
+	
+	
 	float FutureStamina = CurrentStamina + AddedStamina;
 
 	if (FutureStamina < 0)

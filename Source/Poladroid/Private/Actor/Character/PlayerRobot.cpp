@@ -336,8 +336,12 @@ void APlayerRobot::UpdateLevelDetection()
 	{
 		DetectionLevel.Value > Max ? Max = DetectionLevel.Value : Max;
 	}
-	InternalDetectionLevel = Max;
-	OnDetectionLevelUpdated(InternalDetectionLevel);
+	if (InternalDetectionLevel != Max )
+	{
+		InternalDetectionLevel = Max;
+		OnDetectionLevelUpdated(InternalDetectionLevel);
+	}
+
 }
 
 void APlayerRobot::EnableOpacityMaterialEffect_Implementation(bool bEnable)
