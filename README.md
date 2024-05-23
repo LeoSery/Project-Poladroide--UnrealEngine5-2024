@@ -30,8 +30,6 @@ The action takes place in a factory-like building, and the aim of the game is to
     Caméra :
     - Orient camera > `Mouse`
 
-
-
 ## Game pictures
 
 ![Poladroid_Screen_1](https://raw.githubusercontent.com/LeoSery/Project-Poladroide--UnrealEngine5-2024/main/ReadmeContent/GameScreenshots/Poladroid_Screen_1.png)
@@ -91,7 +89,7 @@ The exercise consisted in finding out whether we were capable of producing a gam
 
 AIs operate with an alert system, each level of alert can be triggered by specific conditions, and once these are met it triggers an action. After the action has been performed, new conditions are checked, and depending on the result, the system either returns to the previous alert level, or moves on to the next alert level.
 
-![IA_Logic](https://hackmd.io/_uploads/ry-2S7a7C.png)
+![IA_Logic](https://raw.githubusercontent.com/LeoSery/Project-Poladroide--UnrealEngine5-2024/main/ReadmeContent/TechnicalDemonstrations/Artificial_Intelligence/IA_Logic.png)
 
 - Result:
 
