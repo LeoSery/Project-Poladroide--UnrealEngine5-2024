@@ -6,16 +6,31 @@ This game is a student project representing a 20-minute slice concept of a game 
 
 ## Summary
 
-- Game pitch
-- Game pictures
-- Technical demo 
-- How to download the game
+- [Game pitch and controls](#game-gitch-and-controls)
+- [Game pictures](#game-pictures)
+- [Technical demo](#technical-demo) 
+- [How to download the game](#how-to-download-the-game)
 
-## Game Pitch
+## Game Pitch and controls
+
+- Pitch:
 
 Poladroid is a TPS-camera traversal/stealth game in which the player takes on the role of a small robot. The action takes place in a near-future, dystopian Futurism, in a world seeking to break away from its roots. The character is one of the last of his kind, embodying the old world, but rejected and hunted.
 
 The action takes place in a factory-like building, and the aim of the game is to escape without being caught by the various robot guards/workers.
+
+- Controls:
+
+    Moving :
+    - Moving forward > `Z`
+    - Moving Left > `Q`
+    - Moving backwards > `S`
+    - Moving Right > `D`
+
+    Caméra :
+    - Orient camera > `Mouse`
+
+
 
 ## Game pictures
 
@@ -51,7 +66,7 @@ The action takes place in a factory-like building, and the aim of the game is to
 
 - [Loïc DUBAR](https://www.artstation.com/loicdub) *(Environment, Modular Texture and Level art)*
 
-## Technical points
+## Technical demo
 
 The exercise consisted in finding out whether we were capable of producing a game in a given time (2 months) by carrying out a few complex features such as this one: 
 
@@ -76,7 +91,7 @@ The exercise consisted in finding out whether we were capable of producing a gam
 
 AIs operate with an alert system, each level of alert can be triggered by specific conditions, and once these are met it triggers an action. After the action has been performed, new conditions are checked, and depending on the result, the system either returns to the previous alert level, or moves on to the next alert level.
 
-![IA_Logic](https://raw.githubusercontent.com/LeoSery/Project-Poladroide--UnrealEngine5-2024/main/ReadmeContent/Artificial_Intelligence/IA_Logic.png)
+![IA_Logic](https://hackmd.io/_uploads/ry-2S7a7C.png)
 
 - Result:
 
@@ -100,3 +115,7 @@ AIs operate with an alert system, each level of alert can be triggered by specif
 ![Wall_Walk_Result_2](https://s12.gifyu.com/images/SfRzg.gif)
 
 ![Wall_Walk_Result_1](https://s10.gifyu.com/images/SfRzn.gif)
+
+## How to download the game
+
+The game is available on windows `(x64)` [here on itch](https://leosery.itch.io/poladroid) 
